@@ -44,9 +44,8 @@ final class ModulesFactory: Modules {
         return (view, presenter)
     }
 
-    func createSchedule(with date: Date) -> (UIViewController, CreateScheduleModule) {
+    func createSchedule() -> (UIViewController, CreateScheduleModule) {
         let view = CreateScheduleViewController()
-        view.date = date
         let interactor = CreateScheduleInteractor()
         interactor.database = dependencies.doctorsDatabase
         let presenter = CreateSchedulePresenter(view: view, interactor: interactor)
@@ -54,11 +53,11 @@ final class ModulesFactory: Modules {
         return (view, presenter)
     }
 
-    func pickDoctor(from doctors: [Doctor], selected doctor: Doctor?) -> (UIViewController, PickDoctorModule) {
-        let view = PickDoctorViewController()
-        view.doctors = doctors
-        view.selectedDoctor = doctor
-        let presenter = PickDoctorPresenter(view: view)
+    func doctorsSearch() -> (UIViewController, DoctorsSearchModule) {
+        let view = DoctorsSearchViewController()
+        let interactor = DoctorsSearchInteractor()
+        interactor.database = dependencies.doctorsDatabase
+        let presenter = DoctorsSearchPresenter(view: view, interactor: interactor)
 
         return (view, presenter)
     }
@@ -83,12 +82,12 @@ final class ModulesFactory: Modules {
         return (view, presenter)
     }
 
-    func addSchedule(_ schedule: DoctorSchedule) -> (UIViewController, AddScheduleModule) {
-        let view = AddScheduleViewController()
+    func graphicTimeTablePreview(_ schedule: DoctorSchedule) -> (UIViewController, GraphicTimeTablePreviewModule) {
+        let view = GraphicTimeTablePreviewViewController()
         view.newSchedule = schedule
-        let interactor = AddScheduleInteractor()
+        let interactor = GraphicTimeTablePreviewInteractor()
         interactor.database = dependencies.doctorsDatabase
-        let presenter = AddSchedulePresenter(view: view, interactor: interactor)
+        let presenter = GraphicTimeTablePreviewPresenter(view: view, interactor: interactor)
 
         return (view, presenter)
     }

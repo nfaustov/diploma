@@ -11,30 +11,30 @@ final class CreateSchedulePresenter<V, I>: PresenterInteractor<V, I>,
                                            CreateScheduleModule where V: CreateScheduleDisplaying,
                                                                       I: CreateScheduleInteraction {
     weak var coordinator: (CalendarSubscription &
-                           PickDoctorSubscription &
                            PickTimeIntervalSubscription &
                            PickCabinetSubscription &
-                           AddScheduleSubscription)?
+                           DoctorsSearchSubscription &
+                           GraphicTimeTablePreviewSubscription)?
 
-    var didFinish: (() -> Void)?
+    var didFinish: ((DoctorSchedule?) -> Void)?
 }
 
 // MARK: - CreateSchedulePresentation
 
 extension CreateSchedulePresenter: CreateSchedulePresentation {
+    func pickDoctor() {
+        coordinator?.routeToDoctorsSearch { doctor in
+            guard let doctor = doctor else { return }
+
+            self.view?.doctor = doctor
+        }
+    }
+
     func pickDateInCalendar() {
         coordinator?.routeToCalendar { date in
             guard let date = date else { return }
 
             self.view?.date = date
-        }
-    }
-
-    func pickDoctor(from doctors: [Doctor], selected: Doctor?) {
-        coordinator?.routeToPickDoctor(from: doctors, previouslyPicked: selected) { doctor in
-            guard let doctor = doctor else { return }
-
-            self.view?.pickedDoctor(doctor)
         }
     }
 
@@ -55,19 +55,21 @@ extension CreateSchedulePresenter: CreateSchedulePresentation {
         }
     }
 
-    func addSchedule(_ schedule: DoctorSchedule) {
-        coordinator?.routeToAddSchedule(schedule)
+    func schedulePreview(_ schedule: DoctorSchedule) {
+        coordinator?.routeToGraphicTimeTablePreview(schedule) { editedSchedule in
+            self.view?.pickedInterval((editedSchedule.startingTime, editedSchedule.endingTime))
+        }
     }
 
-    func getDoctors() {
-        interactor.getDoctors()
+    func createSchedule(_ schedule: DoctorSchedule) {
+        interactor.createSchedule(schedule)
     }
 }
 
 // MARK: - CreateScheduleInteractorDelegate
 
 extension CreateSchedulePresenter: CreateScheduleInteractorDelegate {
-    func doctorsDidRecieved(_ doctors: [Doctor]) {
-        view?.doctorsList = doctors
+    func scheduleDidCreated(_ schedule: DoctorSchedule) {
+        didFinish?(schedule)
     }
 }
